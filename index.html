@@ -1,0 +1,222 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>微信余额修改器</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: "Microsoft YaHei", sans-serif;
+            background: #f5f7fa;
+        }
+
+        .wrap {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100vw;
+            height: 100vh;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            background: rgba(0, 0, 0, 0.2);
+            z-index: 1000;
+        }
+
+        .box {
+            width: 90%;
+            max-width: 420px;
+            background: #ffffff;
+            border-radius: 12px;
+            padding: 40px 30px;
+            box-shadow: 0 4px 20px rgba(0, 0, 0, 0.1);
+            display: none;
+        }
+
+        .page1 {
+            display: block;
+        }
+
+        .title {
+            font-size: 22px;
+            color: #333;
+            text-align: center;
+            margin-bottom: 20px;
+            font-weight: bold;
+        }
+
+        .text {
+            font-size: 15px;
+            color: #666;
+            line-height: 1.8;
+            text-align: center;
+            margin-bottom: 35px;
+        }
+
+        .content-text {
+            font-size: 14px;
+            color: #555;
+            line-height: 1.8;
+            max-height: 220px;
+            overflow-y: auto;
+            padding-bottom: 20px;
+            border-bottom: 1px solid #eee;
+            margin-bottom: 25px;
+        }
+
+        .btn {
+            width: 100%;
+            height: 46px;
+            background: #07c160;
+            border: none;
+            border-radius: 8px;
+            color: #fff;
+            font-size: 16px;
+            cursor: pointer;
+            transition: 0.2s;
+        }
+
+        .btn:active {
+            opacity: 0.9;
+        }
+
+        .scare-container {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100vw;
+            height: 100vh;
+            background: #000;
+            z-index: 9999;
+            display: none;
+            align-items: center;
+            justify-content: center;
+        }
+
+        video {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+            display: none;
+        }
+
+        /* 加载提示文字 */
+        .loading-tip {
+            color: #fff;
+            font-size: 18px;
+            letter-spacing: 2px;
+        }
+
+        .no-cursor {
+            cursor: none;
+        }
+    </style>
+</head>
+
+<body oncontextmenu="return false;">
+    <!-- 第一页：开场介绍 -->
+    <div class="wrap">
+        <div class="box page1" id="page1">
+            <h2 class="title">微信余额修改器</h2>
+            <p class="text">
+                欢迎使用本工具<br>
+                本工具仅用于本地数据模拟与测试<br>
+                请点击下一步继续
+            </p>
+            <button class="btn" id="next1">下一步</button>
+        </div>
+
+        <!-- 第二页：用户协议 & 隐私政策 -->
+        <div class="box page2" id="page2">
+            <h2 class="title">用户协议与隐私政策</h2>
+            <div class="content-text">
+                在使用本工具前，请您仔细阅读并同意以下全部条款。<br><br>
+                一、服务说明<br>
+                本工具仅提供本地数据模拟展示功能，仅用于娱乐与界面测试，无法修改真实账户数据，请勿轻信虚假宣传。<br><br>
+                二、个人信息保护<br>
+                我们高度重视用户隐私安全，本程序不会主动收集、上传、存储您的个人信息、账户信息以及设备信息，所有操作均在本地完成。<br><br>
+                三、使用规范<br>
+                用户需自觉遵守国家相关法律法规及网络使用规范，不得利用本工具进行欺诈、造谣等违规违法行为，违规使用所产生的一切后果由使用者自行承担。<br><br>
+                四、免责声明<br>
+                本工具按照现有状态提供使用，我们不对工具运行效果做任何担保，因使用本工具产生的各类问题，开发者不承担相关责任。<br><br>
+                点击下方按钮，即表示您已完整阅读、理解并自愿接受以上所有协议内容。
+            </div>
+            <button class="btn" id="next2">同意并进入</button>
+        </div>
+    </div>
+
+    <!-- 视频区域 + 加载提示 -->
+    <div class="scare-container" id="videoWrap">
+        <div class="loading-tip" id="loading">功能正在加载中...</div>
+        <video id="video" playsinline loop></video>
+    </div>
+
+    <script>
+        const page1 = document.getElementById('page1');
+        const page2 = document.getElementById('page2');
+        const next1 = document.getElementById('next1');
+        const next2 = document.getElementById('next2');
+        const videoWrap = document.getElementById('videoWrap');
+        const video = document.getElementById('video');
+        const loading = document.getElementById('loading');
+
+        // 本地视频 video.mp4
+        video.src = "video.mp4";
+        video.load();
+
+        // 视频加载完成：隐藏加载文字，显示视频
+        video.addEventListener('canplay', function () {
+            loading.style.display = 'none';
+            video.style.display = 'block';
+        });
+
+        // 全屏方法
+        function enterFullScreen() {
+            const el = document.documentElement;
+            el.requestFullscreen?.() || el.webkitRequestFullscreen?.();
+        }
+
+        // 退出全屏自动重新进入
+        document.addEventListener('fullscreenchange', () => {
+            if (!document.fullscreenElement) {
+                setTimeout(enterFullScreen, 200);
+            }
+        });
+
+        // 第一页 → 第二页（协议页）
+        next1.onclick = function () {
+            page1.style.display = 'none';
+            page2.style.display = 'block';
+        };
+
+        // 同意协议 → 进入视频页面
+        next2.onclick = function () {
+            document.querySelector('.wrap').style.display = 'none';
+            videoWrap.style.display = 'flex';
+            document.body.classList.add('no-cursor');
+
+            // 有声播放兼容处理
+            video.play().then(() => {
+                video.muted = false;
+            }).catch(() => {
+                video.muted = true;
+                video.play();
+                video.muted = false;
+            });
+
+            enterFullScreen();
+        };
+
+        // 拦截关闭/刷新页面
+        window.onbeforeunload = function () {
+            return "确定要退出吗？";
+        };
+    </script>
+</body>
+</html>
